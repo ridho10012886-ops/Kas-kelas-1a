@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Kas Kelas</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-800: #1f2937;
+            --gray-600: #4b5563;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 0.75rem;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
+            padding: 1rem;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3730a3;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: #4f46e5;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+        }
+        
+        .kas-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .kas-amount {
+            text-align: right;
+        }
+        
+        .kas-amount .amount {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+        
+        .kas-amount .detail {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        input, select, button {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #4338ca;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .student-list {
+            margin-top: 1rem;
+        }
+        
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.75rem;
+        }
+        
+        .paid-student {
+            background-color: var(--success-light);
+        }
+        
+        .paid-student h3 {
+            color: #065f46;
+        }
+        
+        .paid-student p {
+            color: #047857;
+            font-size: 0.875rem;
+        }
+        
+        .unpaid-student {
+            background-color: var(--danger-light);
+        }
+        
+        .unpaid-student h3 {
+            color: #991b1b;
+        }
+        
+        .unpaid-student span {
+            color: #dc2626;
+            font-size: 0.875rem;
+        }
+        
+        .reset-btn {
+            background-color: var(--danger);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .reset-btn:hover {
+            background-color: #dc2626;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: var(--radius);
+        }
+        
+        .stat-primary {
+            background-color: var(--primary-light);
+        }
+        
+        .stat-primary .stat-number {
+            color: var(--primary);
+        }
+        
+        .stat-success {
+            background-color: var(--success-light);
+        }
+        
+        .stat-success .stat-number {
+            color: var(--success);
+        }
+        
+        .stat-danger {
+            background-color: var(--danger-light);
+        }
+        
+        .stat-danger .stat-number {
+            color: var(--danger);
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .kas-summary {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .kas-amount {
+                text-align: center;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistem Kas Kelas</h1>
+            <p>Kelola pembayaran kas kelas dengan mudah dan efisien</p>
+        </div>
+        
+        <div class="card">
+            <div class="kas-summary">
+                <div>
+                    <h2 class="card-title">Total Kas Kelas</h2>
+                    <p>Jumlah total yang telah terkumpul</p>
+                </div>
+                <div class="kas-amount">
+                    <div class="amount" id="total-kas">Rp 0</div>
+                    <div class="detail" id="payment-count">dari 0 siswa telah membayar</div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="card">
+                <h2 class="card-title">Tambah Siswa Baru</h2>
+                <div class="input-group">
+                    <input type="text" id="new-student" placeholder="Nama siswa">
+                    <button id="add-student">Tambah</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Pembayaran Kas</h2>
+                <div class="form-group">
+                    <select id="student-select">
+                        <option value="">Pilih siswa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="payment-amount" placeholder="Jumlah pembayaran">
+                </div>
+                <button id="pay-button" style="width: 100%;">Bayar</button>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="card">
+                <h2 class="card-title">Siswa yang Sudah Bayar</h2>
+                <div id="paid-students" class="student-list">
+                    <div style="text-align: center; padding: 2rem; color: #6b7280;">Belum ada siswa yang membayar</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Siswa yang Belum Bayar</h2>
+                <div id="unpaid-students" class="student-list">
+                    <!-- Will be populated with JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">Statistik Pembayaran</h2>
+            <div class="stats">
+                <div class="stat-item stat-primary">
+                    <div class="stat-number" id="total-students">0</div>
+                    <div class="stat-label">Total Siswa</div>
+                </div>
+                <div class="stat-item stat-success">
+                    <div class="stat-number" id="paid-count">0</div>
+                    <div class="stat-label">Sudah Bayar</div>
+                </div>
+                <div class="stat-item stat-danger">
+                    <div class="stat-number" id="unpaid-count">0</div>
+                    <div class="stat-label">Belum Bayar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let students = [
+            { id: 1, name: 'Ahmad Fauzi', paid: false, amount: 0, date: '' },
+            { id: 2, name: 'Budi Santoso', paid: false, amount: 0, date: '' },
+            { id: 3, name: 'Citra Dewi', paid: false, amount: 0, date: '' },
+            { id: 4, name: 'Dewi Lestari', paid: false, amount: 0, date: '' },
+            { id: 5, name: 'Eko Prasetyo', paid: false, amount: 0, date: '' }
+        ];
+        let totalKas = 0;
+        
+        // DOM Elements
+        const newStudentInput = document.getElementById('new-student');
+        const addStudentBtn = document.getElementById('add-student');
+        const studentSelect = document.getElementById('student-select');
+        const paymentAmountInput = document.getElementById('payment-amount');
+        const payButton = document.getElementById('pay-button');
+        const paidStudentsContainer = document.getElementById('paid-students');
+        const unpaidStudentsContainer = document.getElementById('unpaid-students');
+        const totalKasElement = document.getElementById('total-kas');
+        const paymentCountElement = document.getElementById('payment-count');
+        const totalStudentsElement = document.getElementById('total-students');
+        const paidCountElement = document.getElementById('paid-count');
+        const unpaidCountElement = document.getElementById('unpaid-count');
+        
+        // Initialize the app
+        function init() {
+            renderStudents();
+            updateStats();
+        }
+        
+        // Add a new student
+        addStudentBtn.addEventListener('click', function() {
+            const name = newStudentInput.value.trim();
+            if (name) {
+                const newStudent = {
+                    id: Date.now(),
+                    name: name,
+                    paid: false,
+                    amount: 0,
+                    date: ''
+                };
+                students.push(newStudent);
+                newStudentInput.value = '';
+                renderStudents();
+                updateStats();
+            }
+        });
+        
+        // Handle payment
+        payButton.addEventListener('click', function() {
+            const selectedId = studentSelect.value;
+            const amount = parseInt(paymentAmountInput.value);
+            
+            if (selectedId && amount > 0) {
+                students = students.map(student => {
+                    if (student.id == selectedId) {
+                        return {
+                            ...student,
+                            paid: true,
+                            amount: amount,
+                            date: new Date().toLocaleDateString('id-ID')
+                        };
+                    }
+                    return student;
+                });
+                
+                totalKas += amount;
+                paymentAmountInput.value = '';
+                studentSelect.value = '';
+                
+                renderStudents();
+                updateStats();
+            }
+        });
+        
+        // Reset payment
+        function resetPayment(id) {
+            const student = students.find(s => s.id == id);
+            if (student) {
+                totalKas -= student.amount;
+                students = students.map(s => {
+                    if (s.id == id) {
+                        return {
+                            ...s,
+                            paid: false,
+                            amount: 0,
+                            date: ''
+                        };
+                    }
+                    return s;
+                });
+                
+                renderStudents();
+                updateStats();
+            }
+        }
+        
+        // Render students in select dropdown and lists
+        function renderStudents() {
+            // Clear select options (except first)
+            studentSelect.innerHTML = '<option value="">Pilih siswa</option>';
+            
+            // Get paid and unpaid students
+            const paidStudents = students.filter(s => s.paid);
+            const unpaidStudents = students.filter(s => !s.paid);
+            
+            // Populate select with unpaid students
+            unpaidStudents.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.name;
+                studentSelect.appendChild(option);
+            });
+            
+            // Render paid students
+            if (paidStudents.length === 0) {
+                paidStudentsContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #6b7280;">Belum ada siswa yang membayar</div>';
+            } else {
+                paidStudentsContainer.innerHTML = '';
+                paidStudents.forEach(student => {
+                    const div = document.createElement('div');
+                    div.className = 'student-item paid-student';
+                    div.innerHTML = `
+                        <div>
+                            <h3>${student.name}</h3>
+                            <p>Rp ${student.amount.toLocaleString('id-ID')} - ${student.date}</p>
+                        </div>
+                        <button class="reset-btn" onclick="resetPayment(${student.id})">Reset</button>
+                    `;
+                    paidStudentsContainer.appendChild(div);
+                });
+            }
+            
+            // Render unpaid students
+            if (unpaidStudents.length === 0) {
+                unpaidStudentsContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #6b7280;">Semua siswa sudah membayar</div>';
+            } else {
+                unpaidStudentsContainer.innerHTML = '';
+                unpaidStudents.forEach(student => {
+                    const div = document.createElement('div');
+                    div.className = 'student-item unpaid-student';
+                    div.innerHTML = `
+                        <h3>${student.name}</h3>
+                        <span>Belum bayar</span>
+                    `;
+                    unpaidStudentsContainer.appendChild(div);
+                });
+            }
+            
+            // Update total kas display
+            totalKasElement.textContent = `Rp ${totalKas.toLocaleString('id-ID')}`;
+            paymentCountElement.textContent = `dari ${paidStudents.length} siswa telah membayar`;
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const paidStudents = students.filter(s => s.paid);
+            const unpaidStudents = students.filter(s => !s.paid);
+            
+            totalStudentsElement.textContent = students.length;
+            paidCountElement.textContent = paidStudents.length;
+            unpaidCountElement.textContent = unpaidStudents.length;
+        }
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
