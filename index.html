@@ -361,6 +361,22 @@
             text-align: center;
         }
         
+        .admin-only {
+            display: none;
+        }
+        
+        .readonly-only {
+            display: block;
+        }
+        
+        .admin-view .admin-only {
+            display: block;
+        }
+        
+        .admin-view .readonly-only {
+            display: none;
+        }
+        
         @media (max-width: 768px) {
             .kas-summary {
                 flex-direction: column;
@@ -392,24 +408,28 @@
             </div>
             <button id="login-btn" class="login-btn">Masuk sebagai Admin</button>
             <p style="margin-top: 1rem; font-size: 0.9rem;">Hanya admin yang bisa mengelola pembayaran dan pengeluaran</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                <button id="view-only-btn" style="background-color: var(--gray-600);">Lihat Informasi Kas (Tanpa Login)</button>
+            </p>
         </div>
 
-        <!-- Main Content (Initially Hidden) -->
-        <div id="main-content" style="display: none;">
+        <!-- Main Content -->
+        <div id="main-content" class="readonly-view">
             <div class="date-section">
                 <div class="date-display" id="current-date">Tanggal: ...</div>
-                <button id="new-day-btn">Ganti Hari (Reset Status Mahasiswa)</button>
+                <button id="new-day-btn" class="admin-only">Ganti Hari (Reset Status Mahasiswa)</button>
             </div>
             
             <div class="card">
                 <div class="kas-summary">
                     <div>
                         <h2 class="card-title">Total Kas Hari Ini</h2>
-                        <p>Jumlah yang terkumpul hari ini</p>
+                        <p class="admin-only">Jumlah yang terkumpul hari ini</p>
+                        <p class="readonly-only">Informasi kas hari ini</p>
                     </div>
                     <div class="kas-amount">
                         <div class="amount" id="daily-kas">Rp 0</div>
-                        <div class="detail" id="payment-count">dari 0 mahasiswa telah membayar</div>
+                        <div class="detail admin-only" id="payment-count">dari 0 mahasiswa telah membayar</div>
                     </div>
                 </div>
             </div>
@@ -420,7 +440,8 @@
                 <p style="color: #d97706; margin-top: 0.5rem;">Jumlah ini tidak akan direset, meskipun ganti hari</p>
             </div>
             
-            <div class="card">
+            <!-- Admin-only payment section -->
+            <div class="card admin-only">
                 <h2 class="card-title">Pembayaran Kas Hari Ini</h2>
                 <div class="form-group">
                     <select id="student-select">
@@ -433,7 +454,8 @@
                 <button id="pay-button" style="width: 100%;">Bayar</button>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <!-- Admin-only students sections -->
+            <div class="admin-only" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
                 <div class="card">
                     <h2 class="card-title">Mahasiswa yang Sudah Bayar Hari Ini</h2>
                     <div id="paid-students" class="student-list">
@@ -449,7 +471,8 @@
                 </div>
             </div>
             
-            <div class="expense-section">
+            <!-- Admin-only expense section -->
+            <div class="expense-section admin-only">
                 <h2 class="card-title">Pengeluaran Kas Kelas</h2>
                 <div class="form-group">
                     <input type="text" id="expense-description" placeholder="Deskripsi pengeluaran">
@@ -470,7 +493,8 @@
                 <p style="margin-top: 0.5rem; color: #065f46;">Total Kas - Total Pengeluaran</p>
             </div>
             
-            <div class="card">
+            <!-- Admin-only statistics -->
+            <div class="card admin-only">
                 <h2 class="card-title">Statistik Pembayaran Hari Ini</h2>
                 <div class="stats">
                     <div class="stat-item stat-primary">
@@ -486,42 +510,6 @@
                         <div class="stat-label">Belum Bayar</div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Read-only View (Initially Hidden) -->
-        <div id="readonly-view" style="display: none;">
-            <div class="card">
-                <div class="kas-summary">
-                    <div>
-                        <h2 class="card-title">Total Kas Kelas</h2>
-                        <p>Lihat saldo kas tanpa akses admin</p>
-                    </div>
-                    <div class="kas-amount">
-                        <div class="amount" id="readonly-total-kas">Rp 0</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="expense-section">
-                <h2 class="card-title">Riwayat Pengeluaran</h2>
-                <div class="expense-list" id="readonly-expense-list">
-                    <div style="text-align: center; padding: 1rem; color: #6b7280;">Belum ada pengeluaran</div>
-                </div>
-            </div>
-            
-            <div class="balance-section">
-                <h3>Saldo Akhir Kas Kelas</h3>
-                <div class="amount" id="readonly-final-balance">Rp 0</div>
-            </div>
-            
-            <div class="login-section">
-                <h2>Butuh Akses Admin?</h2>
-                <p>Masukkan password untuk mengelola pembayaran dan pengeluaran</p>
-                <div class="form-group">
-                    <input type="password" id="readonly-admin-password" placeholder="Masukkan password admin">
-                </div>
-                <button id="readonly-login-btn" class="login-btn">Masuk sebagai Admin</button>
             </div>
         </div>
     </div>
@@ -572,11 +560,9 @@
         // DOM Elements
         const loginSection = document.getElementById('login-section');
         const mainContent = document.getElementById('main-content');
-        const readonlyView = document.getElementById('readonly-view');
-        const readonlyAdminPassword = document.getElementById('readonly-admin-password');
-        const readonlyLoginBtn = document.getElementById('readonly-login-btn');
         const adminPassword = document.getElementById('admin-password');
         const loginBtn = document.getElementById('login-btn');
+        const viewOnlyBtn = document.getElementById('view-only-btn');
         const studentSelect = document.getElementById('student-select');
         const paymentAmountInput = document.getElementById('payment-amount');
         const payButton = document.getElementById('pay-button');
@@ -585,7 +571,6 @@
         const dailyKasElement = document.getElementById('daily-kas');
         const paymentCountElement = document.getElementById('payment-count');
         const totalKasPermanentElement = document.getElementById('total-kas-permanent');
-        const readonlyTotalKasElement = document.getElementById('readonly-total-kas');
         const totalStudentsElement = document.getElementById('total-students');
         const paidCountElement = document.getElementById('paid-count');
         const unpaidCountElement = document.getElementById('unpaid-count');
@@ -595,9 +580,7 @@
         const expenseAmount = document.getElementById('expense-amount');
         const addExpenseBtn = document.getElementById('add-expense-btn');
         const expenseList = document.getElementById('expense-list');
-        const readonlyExpenseList = document.getElementById('readonly-expense-list');
         const finalBalanceElement = document.getElementById('final-balance');
-        const readonlyFinalBalanceElement = document.getElementById('readonly-final-balance');
         
         // Initialize the app
         function init() {
@@ -620,7 +603,7 @@
             
             // Event listeners
             loginBtn.addEventListener('click', handleLogin);
-            readonlyLoginBtn.addEventListener('click', handleReadonlyLogin);
+            viewOnlyBtn.addEventListener('click', handleViewOnly);
             payButton.addEventListener('click', handlePayment);
             newDayBtn.addEventListener('click', confirmNewDay);
             addExpenseBtn.addEventListener('click', addExpense);
@@ -853,6 +836,8 @@
         
         // Render expenses
         function renderExpenses() {
+            if (!isAdmin) return;
+            
             // Render for admin view
             if (expenses.length === 0) {
                 expenseList.innerHTML = '<div style="text-align: center; padding: 1rem; color: #6b7280;">Belum ada pengeluaran</div>';
@@ -868,24 +853,6 @@
                         <p><small>${expense.date}</small></p>
                     `;
                     expenseList.appendChild(div);
-                });
-            }
-            
-            // Render for readonly view
-            if (expenses.length === 0) {
-                readonlyExpenseList.innerHTML = '<div style="text-align: center; padding: 1rem; color: #6b7280;">Belum ada pengeluaran</div>';
-            } else {
-                readonlyExpenseList.innerHTML = '';
-                // Show newest expenses first
-                [...expenses].reverse().forEach(expense => {
-                    const div = document.createElement('div');
-                    div.className = 'expense-item';
-                    div.innerHTML = `
-                        <h4>Rp ${expense.amount.toLocaleString('id-ID')}</h4>
-                        <p><strong>${expense.description}</strong></p>
-                        <p><small>${expense.date}</small></p>
-                    `;
-                    readonlyExpenseList.appendChild(div);
                 });
             }
         }
@@ -907,17 +874,17 @@
             // Update kas displays
             dailyKasElement.textContent = `Rp ${dailyKas.toLocaleString('id-ID')}`;
             totalKasPermanentElement.textContent = `Rp ${totalKasPermanent.toLocaleString('id-ID')}`;
-            readonlyTotalKasElement.textContent = `Rp ${totalKasPermanent.toLocaleString('id-ID')}`;
             
             // Calculate and update final balance
             const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
             const finalBalance = totalKasPermanent - totalExpenses;
             
             finalBalanceElement.textContent = `Rp ${finalBalance.toLocaleString('id-ID')}`;
-            readonlyFinalBalanceElement.textContent = `Rp ${finalBalance.toLocaleString('id-ID')}`;
             
-            // Render expenses
-            renderExpenses();
+            // Render expenses (only if admin)
+            if (isAdmin) {
+                renderExpenses();
+            }
         }
         
         // Handle login
@@ -927,25 +894,19 @@
             if (password === ADMIN_PASSWORD) {
                 isAdmin = true;
                 loginSection.style.display = 'none';
-                mainContent.style.display = 'block';
+                mainContent.classList.add('admin-view');
                 alert('Login berhasil! Anda sekarang memiliki akses admin.');
             } else {
                 alert('Password salah! Silakan coba lagi.');
             }
         }
         
-        // Handle readonly login
-        function handleReadonlyLogin() {
-            const password = readonlyAdminPassword.value;
-            
-            if (password === ADMIN_PASSWORD) {
-                isAdmin = true;
-                readonlyView.style.display = 'none';
-                mainContent.style.display = 'block';
-                alert('Login berhasil! Anda sekarang memiliki akses admin.');
-            } else {
-                alert('Password salah! Silakan coba lagi.');
-            }
+        // Handle view only (no login)
+        function handleViewOnly() {
+            isAdmin = false;
+            loginSection.style.display = 'none';
+            mainContent.classList.remove('admin-view');
+            alert('Anda sekarang melihat informasi kas dalam mode read-only. Hanya admin yang bisa mengelola pembayaran dan pengeluaran.');
         }
         
         // Initialize the app when page loads
