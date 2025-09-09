@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -63,6 +62,7 @@
             box-shadow: var(--shadow);
             padding: 1.5rem;
             margin-bottom: 2rem;
+            position: relative;
         }
         
         .card-title {
@@ -104,6 +104,7 @@
             border: 1px solid var(--gray-200);
             border-radius: var(--radius);
             font-size: 1rem;
+            width: 100%;
         }
         
         input:focus, select:focus {
@@ -118,6 +119,7 @@
             cursor: pointer;
             font-weight: 500;
             transition: background-color 0.2s;
+            width: auto;
         }
         
         button:hover {
@@ -264,381 +266,7 @@
             color: #d97706;
         }
         
-        @media (max-width: 768px) {
-            .kas-summary {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .kas-amount {
-                text-align: center;
-            }
-            
-            .input-group {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Sistem Kas Kelas SI 1A</h1>
-            <p>Politeknik Banjarmasin - Kelola pembayaran kas kelas dengan mudah</p>
-        </div>
-        
-        <div class="date-section">
-            <div class="date-display" id="current-date">Tanggal: ...</div>
-            <button id="new-day-btn">Ganti Hari (Reset Status Mahasiswa)</button>
-        </div>
-        
-        <div class="card">
-            <div class="kas-summary">
-                <div>
-                    <h2 class="card-title">Total Kas Hari Ini</h2>
-                    <p>Jumlah yang terkumpul hari ini</p>
-                </div>
-                <div class="kas-amount">
-                    <div class="amount" id="daily-kas">Rp 0</div>
-                    <div class="detail" id="payment-count">dari 0 mahasiswa telah membayar</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="total-kas-permanent">
-            <h3>Total Kas Kelas (Akumulasi)</h3>
-            <div class="amount" id="total-kas-permanent">Rp 0</div>
-            <p style="color: #d97706; margin-top: 0.5rem;">Jumlah ini tidak akan direset, meskipun ganti hari</p>
-        </div>
-        
-        <div class="card">
-            <h2 class="card-title">Pembayaran Kas Hari Ini</h2>
-            <div class="form-group">
-                <select id="student-select">
-                    <option value="">Pilih mahasiswa</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="number" id="payment-amount" placeholder="Jumlah pembayaran" value="10000">
-            </div>
-            <button id="pay-button" style="width: 100%;">Bayar</button>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <div class="card">
-                <h2 class="card-title">Mahasiswa yang Sudah Bayar Hari Ini</h2>
-                <div id="paid-students" class="student-list">
-                    <div style="text-align: center; padding: 2rem; color: #6b7280;">Belum ada mahasiswa yang membayar hari ini</div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2 class="card-title">Mahasiswa yang Belum Bayar Hari Ini</h2>
-                <div id="unpaid-students" class="student-list">
-                    <!-- Will be populated with JavaScript -->
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2 class="card-title">Statistik Pembayaran Hari Ini</h2>
-            <div class="stats">
-                <div class="stat-item stat-primary">
-                    <div class="stat-number" id="total-students">0</div>
-                    <div class="stat-label">Total Mahasiswa</div>
-                </div>
-                <div class="stat-item stat-success">
-                    <div class="stat-number" id="paid-count">0</div>
-                    <div class="stat-label">Sudah Bayar</div>
-                </div>
-                <div class="stat-item stat-danger">
-                    <div class="stat-number" id="unpaid-count">0</div>
-                    <div class="stat-label">Belum Bayar</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Daftar mahasiswa dari PDF
-        const studentList = [
-            { id: 1, nim: 'E040325001', name: 'ALYA AULIYA' },
-            { id: 2, nim: 'E040325002', name: 'ANDHIKA YUSUF RAHMAN' },
-            { id: 3, nim: 'E040325009', name: 'MUHAMMAD AZKIYA RAHMAN' },
-            { id: 4, nim: 'E040325013', name: 'MUHAMMAD RIZKY MAULANA' },
-            { id: 5, nim: 'E040325015', name: 'NAJLA AMALIA' },
-            { id: 6, nim: 'E040325020', name: 'ZAHRATUN NUFUS' },
-            { id: 7, nim: 'E040325022', name: 'AHMAD HIDAYAT SAPUTRA' },
-            { id: 8, nim: 'E040325028', name: 'BUNGA NAZUWA' },
-            { id: 9, nim: 'E040325032', name: 'HAYATUN NISA' },
-            { id: 10, nim: 'E040325034', name: 'M. ALVINO FAIQ SOLIHIN' },
-            { id: 11, nim: 'E040325039', name: 'MUAMMAR ALIF DZAKI' },
-            { id: 12, nim: 'E040325043', name: 'MUHAMMAD FATH SHA CHAIRIRI' },
-            { id: 13, nim: 'E040325049', name: 'NALA ROHMATAL\'AZZAH' },
-            { id: 14, nim: 'E040325053', name: 'OKTASESAR DAYA AMIANO' },
-            { id: 15, nim: 'E040325054', name: 'SALIA SAFITRI' },
-            { id: 16, nim: 'E040325058', name: 'SITI NORHIDAYAH' },
-            { id: 17, nim: 'E040325065', name: 'AYU ALRIDHA' },
-            { id: 18, nim: 'E040325068', name: 'HAIKAL' },
-            { id: 19, nim: 'E040325070', name: 'JUWITA' },
-            { id: 20, nim: 'E040325074', name: 'MUHAMMAD RIZQI AULIA' },
-            { id: 21, nim: 'E040325078', name: 'SAIDA ZAINAB' },
-            { id: 22, nim: 'E040325084', name: 'M. RIDHO KURNIAWAN' },
-            { id: 23, nim: 'E040325088', name: 'MUHAMMAD RIDWAN MAULANA' },
-            { id: 24, nim: 'E040325091', name: 'NUR SYIFA AZKIYA' },
-            { id: 25, nim: 'E040325095', name: 'MUHAMMAD ARIYA' },
-            { id: 26, nim: 'E040325099', name: 'MUHAMMAD AKMALUL IHSAN' },
-            { id: 27, nim: 'E040325104', name: 'NABYLA RAHMAH' }
-        ];
-
-        // State variables
-        let students = [];
-        let dailyKas = 0;
-        let totalKasPermanent = 0; // Ini tidak akan direset saat ganti hari
-        let currentDate = new Date();
-        
-        // DOM Elements
-        const studentSelect = document.getElementById('student-select');
-        const paymentAmountInput = document.getElementById('payment-amount');
-        const payButton = document.getElementById('pay-button');
-        const paidStudentsContainer = document.getElementById('paid-students');
-        const unpaidStudentsContainer = document.getElementById('unpaid-students');
-        const dailyKasElement = document.getElementById('daily-kas');
-        const paymentCountElement = document.getElementById('payment-count');
-        const totalKasPermanentElement = document.getElementById('total-kas-permanent');
-        const totalStudentsElement = document.getElementById('total-students');
-        const paidCountElement = document.getElementById('paid-count');
-        const unpaidCountElement = document.getElementById('unpaid-count');
-        const currentDateElement = document.getElementById('current-date');
-        const newDayBtn = document.getElementById('new-day-btn');
-        
-        // Initialize the app
-        function init() {
-            // Set current date display
-            updateDateDisplay();
-            
-            // Initialize students for today
-            resetDay();
-            
-            // Load total kas permanent from localStorage if available
-            const savedTotalKas = localStorage.getItem('totalKasPermanent');
-            if (savedTotalKas) {
-                totalKasPermanent = parseInt(savedTotalKas);
-                totalKasPermanentElement.textContent = `Rp ${totalKasPermanent.toLocaleString('id-ID')}`;
-            }
-            
-            // Event listeners
-            payButton.addEventListener('click', handlePayment);
-            newDayBtn.addEventListener('click', confirmNewDay);
-        }
-        
-        // Update date display
-        function updateDateDisplay() {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            currentDateElement.textContent = 'Tanggal: ' + currentDate.toLocaleDateString('id-ID', options);
-        }
-        
-        // Reset for new day (only reset students, not total kas)
-        function resetDay() {
-            // Reset students to initial state (all unpaid)
-            students = studentList.map(student => ({
-                id: student.id,
-                nim: student.nim,
-                name: student.name,
-                paid: false,
-                amount: 0,
-                date: ''
-            }));
-            
-            // Reset only daily kas
-            dailyKas = 0;
-            
-            // Render UI
-            renderStudents();
-            updateStats();
-            dailyKasElement.textContent = `Rp ${dailyKas.toLocaleString('id-ID')}`;
-        }
-        
-        // Confirm new day
-        function confirmNewDay() {
-            if (confirm('Apakah Anda yakin ingin ganti hari? Status pembayaran mahasiswa akan direset, tapi total kas keseluruhan tetap tersimpan.')) {
-                // Update date to today
-                currentDate = new Date();
-                updateDateDisplay();
-                
-                // Reset day (students only)
-                resetDay();
-            }
-        }
-        
-        // Handle payment
-        function handlePayment() {
-            const selectedId = studentSelect.value;
-            const amount = parseInt(paymentAmountInput.value);
-            
-            if (selectedId && amount > 0) {
-                students = students.map(student => {
-                    if (student.id == selectedId) {
-                        return {
-                            ...student,
-                            paid: true,
-                            amount: amount,
-                            date: new Date().toLocaleTimeString('id-ID')
-                        };
-                    }
-                    return student;
-                });
-                
-                // Update both daily kas and total permanent kas
-                dailyKas += amount;
-                totalKasPermanent += amount;
-                
-                // Save total kas permanent to localStorage
-                localStorage.setItem('totalKasPermanent', totalKasPermanent.toString());
-                
-                // Update UI
-                dailyKasElement.textContent = `Rp ${dailyKas.toLocaleString('id-ID')}`;
-                totalKasPermanentElement.textContent = `Rp ${totalKasPermanent.toLocaleString('id-ID')}`;
-                
-                renderStudents();
-                updateStats();
-            } else {
-                alert('Pilih mahasiswa dan masukkan jumlah pembayaran yang valid');
-            }
-        }
-        
-        // Render students in select dropdown and lists
-        function renderStudents() {
-            // Clear select options (except first)
-            studentSelect.innerHTML = '<option value="">Pilih mahasiswa</option>';
-            
-            // Get paid and unpaid students
-            const paidStudents = students.filter(s => s.paid);
-            const unpaidStudents = students.filter(s => !s.paid);
-            
-            // Populate select with unpaid students
-            unpaidStudents.forEach(student => {
-                const option = document.createElement('option');
-                option.value = student.id;
-                option.textContent = `${student.name} (${student.nim})`;
-                studentSelect.appendChild(option);
-            });
-            
-            // Render paid students
-            if (paidStudents.length === 0) {
-                paidStudentsContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #6b7280;">Belum ada mahasiswa yang membayar hari ini</div>';
-            } else {
-                paidStudentsContainer.innerHTML = '';
-                paidStudents.forEach(student => {
-                    const div = document.createElement('div');
-                    div.className = 'student-item paid-student';
-                    div.innerHTML = `
-                        <div>
-                            <h3>${student.name}</h3>
-                            <p>Rp ${student.amount.toLocaleString('id-ID')} - Jam ${student.date}</p>
-                            <small>${student.nim}</small>
-                        </div>
-                    `;
-                    paidStudentsContainer.appendChild(div);
-                });
-            }
-            
-            // Render unpaid students
-            if (unpaidStudents.length === 0) {
-                unpaidStudentsContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #6b7280;">Semua mahasiswa sudah membayar hari ini</div>';
-            } else {
-                unpaidStudentsContainer.innerHTML = '';
-                unpaidStudents.forEach(student => {
-                    const div = document.createElement('div');
-                    div.className = 'student-item unpaid-student';
-                    div.innerHTML = `
-                        <div>
-                            <h3>${student.name}</h3>
-                            <small>${student.nim}</small>
-                        </div>
-                        <span>Belum bayar</span>
-                    `;
-                    unpaidStudentsContainer.appendChild(div);
-                });
-            }
-            
-            // Update payment count display
-            paymentCountElement.textContent = `dari ${paidStudents.length} mahasiswa telah membayar`;
-        }
-        
-        // Update statistics
-        function updateStats() {
-            const paidStudents = students.filter(s => s.paid);
-            const unpaidStudents = students.filter(s => !s.paid);
-            
-            totalStudentsElement.textContent = students.length;
-            paidCountElement.textContent = paidStudents.length;
-            unpaidCountElement.textContent = unpaidStudents.length;
-        }
-        
-        // Initialize the app
-        init();
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Kas Kelas SI 1A</title>
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-light: #eef2ff;
-            --success: #10b981;
-            --success-light: #ecfdf5;
-            --danger: #ef4444;
-            --danger-light: #fef2f2;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-800: #1f2937;
-            --gray-600: #4b5563;
-            --white: #ffffff;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 0.75rem;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
-            padding: 1rem;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #3730a3;
-            margin-bottom: 0.5rem;
-        }
-        
-        .header p {
-            color: #4f46e5;
-            font-size: 1.1rem;
-        }
-        
-        .card {
+        .expense-section {
             background-color: var(--white);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
@@ -646,203 +274,91 @@
             margin-bottom: 2rem;
         }
         
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 1rem;
-        }
-        
-        .kas-summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .kas-amount {
-            text-align: right;
-        }
-        
-        .kas-amount .amount {
-            font-size: 1.875rem;
-            font-weight: 700;
-            color: var(--success);
-        }
-        
-        .kas-amount .detail {
-            font-size: 0.875rem;
-            color: var(--gray-500);
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        input, select, button {
-            padding: 0.75rem;
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius);
-            font-size: 1rem;
-        }
-        
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-        
-        button {
-            background-color: var(--primary);
-            color: white;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        
-        button:hover {
-            background-color: #4338ca;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .student-list {
+        .expense-list {
             margin-top: 1rem;
-            max-height: 400px;
+            max-height: 300px;
             overflow-y: auto;
         }
         
-        .student-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .expense-item {
+            background-color: #fef2f2;
             padding: 1rem;
             border-radius: var(--radius);
             margin-bottom: 0.75rem;
+            border-left: 4px solid #ef4444;
         }
         
-        .paid-student {
-            background-color: var(--success-light);
-        }
-        
-        .paid-student h3 {
-            color: #065f46;
-        }
-        
-        .paid-student p {
-            color: #047857;
-            font-size: 0.875rem;
-        }
-        
-        .unpaid-student {
-            background-color: var(--danger-light);
-        }
-        
-        .unpaid-student h3 {
-            color: #991b1b;
-        }
-        
-        .unpaid-student span {
+        .expense-item h4 {
             color: #dc2626;
-            font-size: 0.875rem;
-        }
-        
-        .reset-btn {
-            background-color: var(--danger);
-            padding: 0.25rem 0.75rem;
-            font-size: 0.75rem;
-        }
-        
-        .reset-btn:hover {
-            background-color: #dc2626;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 1rem;
-            border-radius: var(--radius);
-        }
-        
-        .stat-primary {
-            background-color: var(--primary-light);
-        }
-        
-        .stat-primary .stat-number {
-            color: var(--primary);
-        }
-        
-        .stat-success {
-            background-color: var(--success-light);
-        }
-        
-        .stat-success .stat-number {
-            color: var(--success);
-        }
-        
-        .stat-danger {
-            background-color: var(--danger-light);
-        }
-        
-        .stat-danger .stat-number {
-            color: var(--danger);
-        }
-        
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: 700;
             margin-bottom: 0.5rem;
         }
         
-        .stat-label {
-            font-size: 1rem;
-            font-weight: 500;
+        .expense-item p {
+            font-size: 0.875rem;
+            color: #6b7280;
         }
         
-        .date-section {
+        .balance-section {
+            background-color: #f0fdf4;
+            border: 2px solid #10b981;
+            padding: 1rem;
+            border-radius: var(--radius);
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .balance-section .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #059669;
+        }
+        
+        .login-section {
             background-color: var(--white);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            padding: 2rem;
             text-align: center;
+            max-width: 500px;
+            margin: 4rem auto;
         }
         
-        .date-display {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 1rem;
+        .login-section h2 {
+            font-size: 1.8rem;
+            color: var(--gray-800);
+            margin-bottom: 1.5rem;
         }
         
-        .total-kas-permanent {
-            background-color: #fffbeb;
-            border: 2px solid #f59e0b;
-            padding: 1rem;
-            border-radius: var(--radius);
+        .login-btn {
+            background-color: var(--success);
             margin-top: 1rem;
+            width: 100%;
+        }
+        
+        .login-btn:hover {
+            background-color: #059669;
+        }
+        
+        .readonly-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: var(--radius);
+        }
+        
+        .readonly-message {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             text-align: center;
-        }
-        
-        .total-kas-permanent h3 {
-            color: #d97706;
-            font-weight: 600;
-        }
-        
-        .total-kas-permanent .amount {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #d97706;
         }
         
         @media (max-width: 768px) {
@@ -868,74 +384,144 @@
             <p>Politeknik Banjarmasin - Kelola pembayaran kas kelas dengan mudah</p>
         </div>
         
-        <div class="date-section">
-            <div class="date-display" id="current-date">Tanggal: ...</div>
-            <button id="new-day-btn">Ganti Hari (Reset Status Mahasiswa)</button>
-        </div>
-        
-        <div class="card">
-            <div class="kas-summary">
-                <div>
-                    <h2 class="card-title">Total Kas Hari Ini</h2>
-                    <p>Jumlah yang terkumpul hari ini</p>
-                </div>
-                <div class="kas-amount">
-                    <div class="amount" id="daily-kas">Rp 0</div>
-                    <div class="detail" id="payment-count">dari 0 mahasiswa telah membayar</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="total-kas-permanent">
-            <h3>Total Kas Kelas (Akumulasi)</h3>
-            <div class="amount" id="total-kas-permanent">Rp 0</div>
-            <p style="color: #d97706; margin-top: 0.5rem;">Jumlah ini tidak akan direset, meskipun ganti hari</p>
-        </div>
-        
-        <div class="card">
-            <h2 class="card-title">Pembayaran Kas Hari Ini</h2>
+        <!-- Login Section -->
+        <div id="login-section" class="login-section">
+            <h2>Verifikasi Admin</h2>
             <div class="form-group">
-                <select id="student-select">
-                    <option value="">Pilih mahasiswa</option>
-                </select>
+                <input type="password" id="admin-password" placeholder="Masukkan password admin">
             </div>
-            <div class="form-group">
-                <input type="number" id="payment-amount" placeholder="Jumlah pembayaran" value="10000">
-            </div>
-            <button id="pay-button" style="width: 100%;">Bayar</button>
+            <button id="login-btn" class="login-btn">Masuk sebagai Admin</button>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">Hanya admin yang bisa mengelola pembayaran dan pengeluaran</p>
         </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <div class="card">
-                <h2 class="card-title">Mahasiswa yang Sudah Bayar Hari Ini</h2>
-                <div id="paid-students" class="student-list">
-                    <div style="text-align: center; padding: 2rem; color: #6b7280;">Belum ada mahasiswa yang membayar hari ini</div>
-                </div>
+
+        <!-- Main Content (Initially Hidden) -->
+        <div id="main-content" style="display: none;">
+            <div class="date-section">
+                <div class="date-display" id="current-date">Tanggal: ...</div>
+                <button id="new-day-btn">Ganti Hari (Reset Status Mahasiswa)</button>
             </div>
             
             <div class="card">
-                <h2 class="card-title">Mahasiswa yang Belum Bayar Hari Ini</h2>
-                <div id="unpaid-students" class="student-list">
-                    <!-- Will be populated with JavaScript -->
+                <div class="kas-summary">
+                    <div>
+                        <h2 class="card-title">Total Kas Hari Ini</h2>
+                        <p>Jumlah yang terkumpul hari ini</p>
+                    </div>
+                    <div class="kas-amount">
+                        <div class="amount" id="daily-kas">Rp 0</div>
+                        <div class="detail" id="payment-count">dari 0 mahasiswa telah membayar</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="total-kas-permanent">
+                <h3>Total Kas Kelas (Akumulasi)</h3>
+                <div class="amount" id="total-kas-permanent">Rp 0</div>
+                <p style="color: #d97706; margin-top: 0.5rem;">Jumlah ini tidak akan direset, meskipun ganti hari</p>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Pembayaran Kas Hari Ini</h2>
+                <div class="form-group">
+                    <select id="student-select">
+                        <option value="">Pilih mahasiswa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="payment-amount" placeholder="Jumlah pembayaran" value="10000">
+                </div>
+                <button id="pay-button" style="width: 100%;">Bayar</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="card">
+                    <h2 class="card-title">Mahasiswa yang Sudah Bayar Hari Ini</h2>
+                    <div id="paid-students" class="student-list">
+                        <div style="text-align: center; padding: 2rem; color: #6b7280;">Belum ada mahasiswa yang membayar hari ini</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="card-title">Mahasiswa yang Belum Bayar Hari Ini</h2>
+                    <div id="unpaid-students" class="student-list">
+                        <!-- Will be populated with JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="expense-section">
+                <h2 class="card-title">Pengeluaran Kas Kelas</h2>
+                <div class="form-group">
+                    <input type="text" id="expense-description" placeholder="Deskripsi pengeluaran">
+                </div>
+                <div class="form-group">
+                    <input type="number" id="expense-amount" placeholder="Jumlah pengeluaran">
+                </div>
+                <button id="add-expense-btn" style="width: 100%;">Tambah Pengeluaran</button>
+                
+                <div class="expense-list" id="expense-list">
+                    <div style="text-align: center; padding: 1rem; color: #6b7280;">Belum ada pengeluaran</div>
+                </div>
+            </div>
+            
+            <div class="balance-section">
+                <h3>Saldo Akhir Kas Kelas</h3>
+                <div class="amount" id="final-balance">Rp 0</div>
+                <p style="margin-top: 0.5rem; color: #065f46;">Total Kas - Total Pengeluaran</p>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">Statistik Pembayaran Hari Ini</h2>
+                <div class="stats">
+                    <div class="stat-item stat-primary">
+                        <div class="stat-number" id="total-students">0</div>
+                        <div class="stat-label">Total Mahasiswa</div>
+                    </div>
+                    <div class="stat-item stat-success">
+                        <div class="stat-number" id="paid-count">0</div>
+                        <div class="stat-label">Sudah Bayar</div>
+                    </div>
+                    <div class="stat-item stat-danger">
+                        <div class="stat-number" id="unpaid-count">0</div>
+                        <div class="stat-label">Belum Bayar</div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="card">
-            <h2 class="card-title">Statistik Pembayaran Hari Ini</h2>
-            <div class="stats">
-                <div class="stat-item stat-primary">
-                    <div class="stat-number" id="total-students">0</div>
-                    <div class="stat-label">Total Mahasiswa</div>
+        <!-- Read-only View (Initially Hidden) -->
+        <div id="readonly-view" style="display: none;">
+            <div class="card">
+                <div class="kas-summary">
+                    <div>
+                        <h2 class="card-title">Total Kas Kelas</h2>
+                        <p>Lihat saldo kas tanpa akses admin</p>
+                    </div>
+                    <div class="kas-amount">
+                        <div class="amount" id="readonly-total-kas">Rp 0</div>
+                    </div>
                 </div>
-                <div class="stat-item stat-success">
-                    <div class="stat-number" id="paid-count">0</div>
-                    <div class="stat-label">Sudah Bayar</div>
+            </div>
+            
+            <div class="expense-section">
+                <h2 class="card-title">Riwayat Pengeluaran</h2>
+                <div class="expense-list" id="readonly-expense-list">
+                    <div style="text-align: center; padding: 1rem; color: #6b7280;">Belum ada pengeluaran</div>
                 </div>
-                <div class="stat-item stat-danger">
-                    <div class="stat-number" id="unpaid-count">0</div>
-                    <div class="stat-label">Belum Bayar</div>
+            </div>
+            
+            <div class="balance-section">
+                <h3>Saldo Akhir Kas Kelas</h3>
+                <div class="amount" id="readonly-final-balance">Rp 0</div>
+            </div>
+            
+            <div class="login-section">
+                <h2>Butuh Akses Admin?</h2>
+                <p>Masukkan password untuk mengelola pembayaran dan pengeluaran</p>
+                <div class="form-group">
+                    <input type="password" id="readonly-admin-password" placeholder="Masukkan password admin">
                 </div>
+                <button id="readonly-login-btn" class="login-btn">Masuk sebagai Admin</button>
             </div>
         </div>
     </div>
@@ -972,13 +558,25 @@
             { id: 27, nim: 'E040325104', name: 'NABYLA RAHMAH' }
         ];
 
+        // Password admin (ganti dengan password yang Anda inginkan)
+        const ADMIN_PASSWORD = "admin123";
+
         // State variables
         let students = [];
         let dailyKas = 0;
-        let totalKasPermanent = 0; // Ini tidak akan direset saat ganti hari
+        let totalKasPermanent = 0;
+        let expenses = [];
         let currentDate = new Date();
+        let isAdmin = false;
         
         // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const mainContent = document.getElementById('main-content');
+        const readonlyView = document.getElementById('readonly-view');
+        const readonlyAdminPassword = document.getElementById('readonly-admin-password');
+        const readonlyLoginBtn = document.getElementById('readonly-login-btn');
+        const adminPassword = document.getElementById('admin-password');
+        const loginBtn = document.getElementById('login-btn');
         const studentSelect = document.getElementById('student-select');
         const paymentAmountInput = document.getElementById('payment-amount');
         const payButton = document.getElementById('pay-button');
@@ -987,30 +585,91 @@
         const dailyKasElement = document.getElementById('daily-kas');
         const paymentCountElement = document.getElementById('payment-count');
         const totalKasPermanentElement = document.getElementById('total-kas-permanent');
+        const readonlyTotalKasElement = document.getElementById('readonly-total-kas');
         const totalStudentsElement = document.getElementById('total-students');
         const paidCountElement = document.getElementById('paid-count');
         const unpaidCountElement = document.getElementById('unpaid-count');
         const currentDateElement = document.getElementById('current-date');
         const newDayBtn = document.getElementById('new-day-btn');
+        const expenseDescription = document.getElementById('expense-description');
+        const expenseAmount = document.getElementById('expense-amount');
+        const addExpenseBtn = document.getElementById('add-expense-btn');
+        const expenseList = document.getElementById('expense-list');
+        const readonlyExpenseList = document.getElementById('readonly-expense-list');
+        const finalBalanceElement = document.getElementById('final-balance');
+        const readonlyFinalBalanceElement = document.getElementById('readonly-final-balance');
         
         // Initialize the app
         function init() {
-            // Set current date display
+            // Load data from localStorage
+            loadFromLocalStorage();
+            
+            // Update date display
             updateDateDisplay();
             
-            // Initialize students for today
-            resetDay();
-            
-            // Load total kas permanent from localStorage if available
-            const savedTotalKas = localStorage.getItem('totalKasPermanent');
-            if (savedTotalKas) {
-                totalKasPermanent = parseInt(savedTotalKas);
-                totalKasPermanentElement.textContent = `Rp ${totalKasPermanent.toLocaleString('id-ID')}`;
+            // Initialize students for today if empty
+            if (students.length === 0) {
+                resetDay();
+            } else {
+                renderStudents();
+                updateStats();
             }
             
+            // Update all displays
+            updateAllDisplays();
+            
             // Event listeners
+            loginBtn.addEventListener('click', handleLogin);
+            readonlyLoginBtn.addEventListener('click', handleReadonlyLogin);
             payButton.addEventListener('click', handlePayment);
             newDayBtn.addEventListener('click', confirmNewDay);
+            addExpenseBtn.addEventListener('click', addExpense);
+        }
+        
+        // Load data from localStorage
+        function loadFromLocalStorage() {
+            try {
+                const savedTotalKas = localStorage.getItem('totalKasPermanent');
+                const savedExpenses = localStorage.getItem('expenses');
+                const savedStudents = localStorage.getItem('students');
+                const savedDailyKas = localStorage.getItem('dailyKas');
+                
+                if (savedTotalKas) {
+                    totalKasPermanent = parseInt(savedTotalKas) || 0;
+                }
+                
+                if (savedExpenses) {
+                    expenses = JSON.parse(savedExpenses) || [];
+                }
+                
+                if (savedStudents) {
+                    students = JSON.parse(savedStudents) || [];
+                    // Ensure all students have required properties
+                    if (students.length === 0 || !students[0].hasOwnProperty('paid')) {
+                        resetDay();
+                    }
+                }
+                
+                if (savedDailyKas) {
+                    dailyKas = parseInt(savedDailyKas) || 0;
+                }
+            } catch (error) {
+                console.error("Error loading from localStorage:", error);
+                // Reset to default if there's an error
+                resetDay();
+            }
+        }
+        
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('totalKasPermanent', totalKasPermanent.toString());
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                localStorage.setItem('students', JSON.stringify(students));
+                localStorage.setItem('dailyKas', dailyKas.toString());
+            } catch (error) {
+                console.error("Error saving to localStorage:", error);
+            }
         }
         
         // Update date display
@@ -1034,10 +693,13 @@
             // Reset only daily kas
             dailyKas = 0;
             
+            // Save to localStorage
+            saveToLocalStorage();
+            
             // Render UI
             renderStudents();
             updateStats();
-            dailyKasElement.textContent = `Rp ${dailyKas.toLocaleString('id-ID')}`;
+            updateAllDisplays();
         }
         
         // Confirm new day
@@ -1054,6 +716,8 @@
         
         // Handle payment
         function handlePayment() {
+            if (!isAdmin) return;
+            
             const selectedId = studentSelect.value;
             const amount = parseInt(paymentAmountInput.value);
             
@@ -1074,22 +738,62 @@
                 dailyKas += amount;
                 totalKasPermanent += amount;
                 
-                // Save total kas permanent to localStorage
-                localStorage.setItem('totalKasPermanent', totalKasPermanent.toString());
+                // Save to localStorage
+                saveToLocalStorage();
                 
                 // Update UI
-                dailyKasElement.textContent = `Rp ${dailyKas.toLocaleString('id-ID')}`;
-                totalKasPermanentElement.textContent = `Rp ${totalKasPermanent.toLocaleString('id-ID')}`;
-                
+                updateAllDisplays();
                 renderStudents();
                 updateStats();
+                
+                // Show success message
+                alert(`Pembayaran berhasil! ${students.find(s => s.id == selectedId).name} telah membayar Rp ${amount.toLocaleString('id-ID')}`);
             } else {
                 alert('Pilih mahasiswa dan masukkan jumlah pembayaran yang valid');
             }
         }
         
+        // Add expense
+        function addExpense() {
+            if (!isAdmin) return;
+            
+            const description = expenseDescription.value.trim();
+            const amount = parseInt(expenseAmount.value);
+            
+            if (description && amount > 0) {
+                const expense = {
+                    id: Date.now(),
+                    description: description,
+                    amount: amount,
+                    date: new Date().toLocaleString('id-ID')
+                };
+                
+                expenses.push(expense);
+                
+                // Update total kas (pengeluaran mengurangi kas)
+                totalKasPermanent -= amount;
+                
+                // Clear inputs
+                expenseDescription.value = '';
+                expenseAmount.value = '';
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Update UI
+                updateAllDisplays();
+                
+                // Show success message
+                alert(`Pengeluaran berhasil ditambahkan: ${description} - Rp ${amount.toLocaleString('id-ID')}`);
+            } else {
+                alert('Masukkan deskripsi dan jumlah pengeluaran yang valid');
+            }
+        }
+        
         // Render students in select dropdown and lists
         function renderStudents() {
+            if (!isAdmin) return;
+            
             // Clear select options (except first)
             studentSelect.innerHTML = '<option value="">Pilih mahasiswa</option>';
             
@@ -1147,8 +851,49 @@
             paymentCountElement.textContent = `dari ${paidStudents.length} mahasiswa telah membayar`;
         }
         
+        // Render expenses
+        function renderExpenses() {
+            // Render for admin view
+            if (expenses.length === 0) {
+                expenseList.innerHTML = '<div style="text-align: center; padding: 1rem; color: #6b7280;">Belum ada pengeluaran</div>';
+            } else {
+                expenseList.innerHTML = '';
+                // Show newest expenses first
+                [...expenses].reverse().forEach(expense => {
+                    const div = document.createElement('div');
+                    div.className = 'expense-item';
+                    div.innerHTML = `
+                        <h4>Rp ${expense.amount.toLocaleString('id-ID')}</h4>
+                        <p><strong>${expense.description}</strong></p>
+                        <p><small>${expense.date}</small></p>
+                    `;
+                    expenseList.appendChild(div);
+                });
+            }
+            
+            // Render for readonly view
+            if (expenses.length === 0) {
+                readonlyExpenseList.innerHTML = '<div style="text-align: center; padding: 1rem; color: #6b7280;">Belum ada pengeluaran</div>';
+            } else {
+                readonlyExpenseList.innerHTML = '';
+                // Show newest expenses first
+                [...expenses].reverse().forEach(expense => {
+                    const div = document.createElement('div');
+                    div.className = 'expense-item';
+                    div.innerHTML = `
+                        <h4>Rp ${expense.amount.toLocaleString('id-ID')}</h4>
+                        <p><strong>${expense.description}</strong></p>
+                        <p><small>${expense.date}</small></p>
+                    `;
+                    readonlyExpenseList.appendChild(div);
+                });
+            }
+        }
+        
         // Update statistics
         function updateStats() {
+            if (!isAdmin) return;
+            
             const paidStudents = students.filter(s => s.paid);
             const unpaidStudents = students.filter(s => !s.paid);
             
@@ -1157,8 +902,54 @@
             unpaidCountElement.textContent = unpaidStudents.length;
         }
         
-        // Initialize the app
-        init();
+        // Update all displays
+        function updateAllDisplays() {
+            // Update kas displays
+            dailyKasElement.textContent = `Rp ${dailyKas.toLocaleString('id-ID')}`;
+            totalKasPermanentElement.textContent = `Rp ${totalKasPermanent.toLocaleString('id-ID')}`;
+            readonlyTotalKasElement.textContent = `Rp ${totalKasPermanent.toLocaleString('id-ID')}`;
+            
+            // Calculate and update final balance
+            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const finalBalance = totalKasPermanent - totalExpenses;
+            
+            finalBalanceElement.textContent = `Rp ${finalBalance.toLocaleString('id-ID')}`;
+            readonlyFinalBalanceElement.textContent = `Rp ${finalBalance.toLocaleString('id-ID')}`;
+            
+            // Render expenses
+            renderExpenses();
+        }
+        
+        // Handle login
+        function handleLogin() {
+            const password = adminPassword.value;
+            
+            if (password === ADMIN_PASSWORD) {
+                isAdmin = true;
+                loginSection.style.display = 'none';
+                mainContent.style.display = 'block';
+                alert('Login berhasil! Anda sekarang memiliki akses admin.');
+            } else {
+                alert('Password salah! Silakan coba lagi.');
+            }
+        }
+        
+        // Handle readonly login
+        function handleReadonlyLogin() {
+            const password = readonlyAdminPassword.value;
+            
+            if (password === ADMIN_PASSWORD) {
+                isAdmin = true;
+                readonlyView.style.display = 'none';
+                mainContent.style.display = 'block';
+                alert('Login berhasil! Anda sekarang memiliki akses admin.');
+            } else {
+                alert('Password salah! Silakan coba lagi.');
+            }
+        }
+        
+        // Initialize the app when page loads
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
